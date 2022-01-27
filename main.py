@@ -2,8 +2,13 @@
 # python3.7で動作確認済み
 
 import ambient
+import time
 import json
 import datetime as dt
+import random
+import requests
+
+REPETITIONS = 3
 
 def conv(data):
     if data[0] in {"tm", "hu"}:
@@ -35,7 +40,6 @@ for device in conf["devices"]:
     data_dic={}
     if len(device["sensors"]) == data_num - 10:
         for i in range(data_num):
-    #    for i in range(0, 13):
             # センサ名と数字のペアができる ex) ["temp","2657"]
             data_pair = data_list[i].split("=")
 
@@ -45,5 +49,14 @@ for device in conf["devices"]:
     else:
         break
 
-    print(data_dic)
+# ambient送信処理
+for i in range(REPETITIONS):
+    try:
+        res = am.send(data_dic, timeout=3)
+        print('sent to Ambient (ret = %d)' % res.status_code)
+        if res.status_code == 200:
+            break
+        time.sleep(random.randint(1,10))
+    except requests.exceptions.RequestException as e:
+        print('request failed: ', e)
 
