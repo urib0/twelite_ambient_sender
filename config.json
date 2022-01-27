@@ -1,0 +1,15 @@
+{
+    "ambient_channel": 12345,
+    "ambient_key_write": "hoge",
+    "logdir": "/home/pi/work/log/log_twe",
+    "devices": [
+        {
+            "sensor_name": "BME280",
+            "sensors": {
+                "tm": "d1",
+                "hu": "d2",
+                "at": "d3"
+            }
+        }
+    ]
+}
