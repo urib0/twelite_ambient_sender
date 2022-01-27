@@ -2,6 +2,7 @@
     "ambient_channel": 12345,
     "ambient_key_write": "hoge",
     "logdir": "/home/pi/work/log/log_twe",
+    "interval": 10,
     "devices": [
         {
             "sensor_name": "BME280",

@@ -25,38 +25,45 @@ f.close()
 
 am = ambient.Ambient(conf["ambient_channel"], conf["ambient_key_write"])
 
-for device in conf["devices"]:
-    filename = conf["logdir"] + "/" + device["sensor_name"] + "/" + device["sensor_name"] + "_" + dt.datetime.now().strftime("%Y-%m-%d") + ".csv"
+while True:
+    for device in conf["devices"]:
+        filename = conf["logdir"] + "/" + device["sensor_name"] + "/" + device["sensor_name"] + "_" + dt.datetime.now().strftime("%Y-%m-%d") + ".csv"
 
-    device = conf["devices"][0]
+        device = conf["devices"][0]
 
-    f = open(filename,"r")
-    # ログの末尾1行をとってくる
-    lines = f.readlines()[-1:][0][:-1]
-    f.close
+        f = open(filename,"r")
+        # ログの末尾1行をとってくる
+        lines = f.readlines()[-1:][0][:-1]
+        f.close
 
-    data_list = lines.split(",")[1].split(":")
-    data_num = len(data_list)
-    data_dic={}
-    if len(device["sensors"]) == data_num - 10:
-        for i in range(data_num):
-            # センサ名と数字のペアができる ex) ["temp","2657"]
-            data_pair = data_list[i].split("=")
+        data_list = lines.split(",")[1].split(":")
+        data_num = len(data_list)
+        data_dic={}
+        if len(device["sensors"]) == data_num - 10:
+            for i in range(data_num):
+                # センサ名と数字のペアができる ex) ["temp","2657"]
+                data_pair = data_list[i].split("=")
 
-            if data_pair[0] in device["sensors"]:
-                # 送信すべきambientのデータ番号が存在することを確認 ex) d1~d8
-                data_dic[device["sensors"][data_pair[0]]] = conv(data_pair)
+                if data_pair[0] in device["sensors"]:
+                    # 送信すべきambientのデータ番号が存在することを確認 ex) d1~d8
+                    data_dic[device["sensors"][data_pair[0]]] = conv(data_pair)
+        else:
+            break
+
+    # ambient送信処理
+    for i in range(REPETITIONS):
+        try:
+            res = am.send(data_dic, timeout=3)
+            print('sent to Ambient (ret = %d)' % res.status_code)
+            if res.status_code == 200:
+                break
+            time.sleep(random.randint(1,10))
+        except requests.exceptions.RequestException as e:
+            print('request failed: ', e)
+
+    # 単発動作 or インターバル動作
+    if conf["interval"] != 0:
+        time.sleep(conf["interval"])
     else:
         break
-
-# ambient送信処理
-for i in range(REPETITIONS):
-    try:
-        res = am.send(data_dic, timeout=3)
-        print('sent to Ambient (ret = %d)' % res.status_code)
-        if res.status_code == 200:
-            break
-        time.sleep(random.randint(1,10))
-    except requests.exceptions.RequestException as e:
-        print('request failed: ', e)
-
+        
