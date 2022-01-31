@@ -26,10 +26,9 @@ f.close()
 am = ambient.Ambient(conf["ambient_channel"], conf["ambient_key_write"])
 
 while True:
+    data_dic={}
     for device in conf["devices"]:
         filename = conf["logdir"] + "/" + device["sensor_name"] + "/" + device["sensor_name"] + "_" + dt.datetime.now().strftime("%Y-%m-%d") + ".csv"
-
-        device = conf["devices"][0]
 
         f = open(filename,"r")
         # ログの末尾1行をとってくる
@@ -38,7 +37,6 @@ while True:
 
         data_list = lines.split(",")[1].split(":")
         data_num = len(data_list)
-        data_dic={}
         for i in range(data_num):
             # センサ名と数字のペアができる ex) ["temp","2657"]
             data_pair = data_list[i].split("=")
@@ -63,4 +61,3 @@ while True:
         time.sleep(conf["interval"])
     else:
         break
-        
