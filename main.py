@@ -11,8 +11,10 @@ import requests
 REPETITIONS = 3
 
 def conv(data):
-    if data[0] in {"tm", "hu", "te"}:
+    if data[0] in {"tm", "te"}:
         return int(data[1]) / 100.0
+    elif data[0] in {"hu"}:
+        return int(data[1]) / 102.4
     elif data[0] in {"ba"}:
         return int(data[1]) / 1000.0
     else:
